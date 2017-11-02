@@ -1,14 +1,10 @@
-FROM debian:latest
-
-MAINTAINER Andre Germann <info@buanet.de>
+FROM arm32v7/node:6
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y apt-utils curl avahi-daemon git libpcap-dev libavahi-compat-libdnssd-dev libfontconfig gnupg2 locales
+RUN apt-get update && apt-get install -y build-essential python apt-utils curl avahi-daemon git libpcap-dev libavahi-compat-libdnssd-dev libfontconfig gnupg2 locales
 RUN sed -i -e 's/# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/' /etc/locale.gen && \dpkg-reconfigure --frontend=noninteractive locales && \update-locale LANG=de_DE.UTF-8
 ENV LANG de_DE.UTF-8 
-RUN curl -sL https://deb.nodesource.com/setup_6.x | bash
-RUN apt-get install -y build-essential python nodejs
 RUN cp /usr/share/zoneinfo/Europe/Berlin /etc/localtime
 
 RUN mkdir -p /opt/iobroker/ && chmod 777 /opt/iobroker/
@@ -28,6 +24,6 @@ WORKDIR /opt/iobroker/
 RUN npm install iobroker --unsafe-perm && echo $(hostname) > .install_host
 RUN update-rc.d iobroker.sh remove
 
-CMD ["sh", "/opt/scripts/iobroker_startup.sh"]
+CMD ["node", "/opt/iobroker/node_modules/iobroker.js-controller/controller.js"]
 
 ENV DEBIAN_FRONTEND teletype
